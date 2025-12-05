@@ -4,6 +4,7 @@ from django.db.models import Q, F
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
+    path = models.CharField(max_length=1024, db_index=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="img/categories/", blank=True, null=True)
 
@@ -23,6 +24,7 @@ class Category(models.Model):
     )
 
     class Meta:
+        verbose_name_plural = "Categories" 
         indexes = [
             models.Index(fields=["parent"]),
             models.Index(fields=["name"]),
@@ -52,6 +54,7 @@ class CategorySimilarity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name_plural = "Category similarities" 
         constraints = [
             # disable A ~ A
             models.CheckConstraint(
