@@ -26,3 +26,8 @@ strict_optional = true
 
 [tool.django-stubs]
 django_settings_module = "category_tree.settings"
+
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+]
