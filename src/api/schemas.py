@@ -1,4 +1,3 @@
-# api/schemas.py
 from __future__ import annotations
 from typing import Optional, List
 from ninja import Schema

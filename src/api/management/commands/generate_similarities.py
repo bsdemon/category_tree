@@ -9,7 +9,7 @@ from api.models import Category, CategorySimilarity
 
 TARGET_SIMILARITIES = 200_000
 BATCH_SIZE = 5_000
-random.seed(42)
+random.seed(42) # to have deterministic results
 
 
 class Command(BaseCommand):
@@ -37,7 +37,6 @@ class Command(BaseCommand):
         )
 
         while created_count < TARGET_SIMILARITIES:
-            # random pick
             a, b = random.sample(category_ids, 2)
             c1, c2 = (a, b) if a < b else (b, a)
 
@@ -50,14 +49,12 @@ class Command(BaseCommand):
             batch.append(CategorySimilarity(category1_id=c1, category2_id=c2))
             created_count += 1
 
-            # bulk insert when batch is full
             if len(batch) >= BATCH_SIZE:
                 with transaction.atomic():
                     CategorySimilarity.objects.bulk_create(batch, ignore_conflicts=True)
                 self.stdout.write(self.style.SUCCESS(f"Inserted {created_count} similarities..."))
                 batch = []
 
-        # Insert remaining
         if batch:
             with transaction.atomic():
                 CategorySimilarity.objects.bulk_create(batch, ignore_conflicts=True)

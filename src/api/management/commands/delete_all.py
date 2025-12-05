@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from api.models import Category, CategorySimilarity
-from api.services import CategoryService
 
 
 class Command(BaseCommand):

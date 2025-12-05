@@ -1,4 +1,3 @@
-# api/management/commands/analyze_similarities.py
 from collections import deque
 from typing import Dict, List, Set, Tuple, Optional
 

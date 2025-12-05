@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import List, Optional
+from typing import List
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -80,10 +80,10 @@ LOREM_WORDS = [
 
 MAX_TOTAL_CATEGORIES = 2000
 MAX_DEPTH_UNDER_ROOT = 4  # depth levels under root
-MIN_CHILDREN_L1 = 8
-MAX_CHILDREN_L1 = 12
-MIN_CHILDREN_OTHER = 0
-MAX_CHILDREN_OTHER = 6
+MIN_CHILDREN_L1 = 8 # Layer 1 min childrens
+MAX_CHILDREN_L1 = 12 # Layer 1 max childrens
+MIN_CHILDREN_OTHER = 0 # The rest layers min childrens
+MAX_CHILDREN_OTHER = 6 # The rest layers max childrens
 
 
 def random_name() -> str:
