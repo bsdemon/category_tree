@@ -1,9 +1,9 @@
 from django.db import models
 from django.db.models import Q, F
 
+
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    path = models.CharField(max_length=1024, db_index=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to="img/categories/", blank=True, null=True)
 
@@ -15,7 +15,8 @@ class Category(models.Model):
         on_delete=models.CASCADE,
     )
 
-    similar_categories = models.ManyToManyField( # type: ignore # do not annotate ORM fields
+    # Similar categories via explicit through model
+    similar_categories = models.ManyToManyField(  # type: ignore  # do not annotate ORM fields
         "self",
         through="CategorySimilarity",
         symmetrical=False,
@@ -23,7 +24,7 @@ class Category(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = "Categories" 
+        verbose_name_plural = "Categories"
         indexes = [
             models.Index(fields=["parent"]),
             models.Index(fields=["name"]),
@@ -34,9 +35,8 @@ class Category(models.Model):
 
 class CategorySimilarity(models.Model):
     """
-    Similarity connection between two categories
-    category1_id < category2_id
-    and we do not allow  (A, A).
+    Similarity connection between two categories.
+    category1_id < category2_id and we do not allow (A, A).
     """
 
     category1 = models.ForeignKey(
@@ -53,19 +53,16 @@ class CategorySimilarity(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name_plural = "Category similarities" 
+        verbose_name_plural = "Category similarities"
         constraints = [
-            # disable A ~ A
             models.CheckConstraint(
                 condition=~Q(category1=F("category2")),
                 name="no_self_similarity",
             ),
-            # order: category1_id < category2_id
             models.CheckConstraint(
                 condition=Q(category1__lt=F("category2")),
                 name="category1_lt_category2",
             ),
-            # unique constraint: A < B
             models.UniqueConstraint(
                 fields=["category1", "category2"],
                 name="unique_similarity_pair",

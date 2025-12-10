@@ -5,14 +5,10 @@ from .models import Category, CategorySimilarity
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "parent", "path")
+    list_display = ("id", "name", "parent", "image")
     list_filter = ("parent",)
-    search_fields = ("name", "description", "path")
+    search_fields = ("name", "description")
     raw_id_fields = ("parent",)
-    ordering = ("path",)
-
-    # Optional: readonly path if не искаш да се пипа ръчно в админ
-    readonly_fields = ("path",)
 
 
 @admin.register(CategorySimilarity)

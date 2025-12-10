@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import string
 from typing import List
 
 from django.core.management.base import BaseCommand
@@ -80,10 +81,10 @@ LOREM_WORDS = [
 
 MAX_TOTAL_CATEGORIES = 2000
 MAX_DEPTH_UNDER_ROOT = 4  # depth levels under root
-MIN_CHILDREN_L1 = 8 # Layer 1 min childrens
-MAX_CHILDREN_L1 = 12 # Layer 1 max childrens
-MIN_CHILDREN_OTHER = 0 # The rest layers min childrens
-MAX_CHILDREN_OTHER = 6 # The rest layers max childrens
+MIN_CHILDREN_L1 = 8       # Layer 1 min children
+MAX_CHILDREN_L1 = 12      # Layer 1 max children
+MIN_CHILDREN_OTHER = 0    # The rest layers min children
+MAX_CHILDREN_OTHER = 6    # The rest layers max children
 
 
 def random_name() -> str:
@@ -91,6 +92,13 @@ def random_name() -> str:
     word_count = random.randint(2, 3)
     words = random.sample(LOREM_WORDS, word_count)
     return " ".join(w.capitalize() for w in words)
+
+
+def random_image_name() -> str:
+    """Generate random jpg file name (without path)."""
+    chars = string.ascii_lowercase + string.digits
+    base = "".join(random.choices(chars, k=12))
+    return f"{base}.jpg"
 
 
 class Command(BaseCommand):
@@ -116,9 +124,14 @@ class Command(BaseCommand):
                     parent_id=None,
                 )
                 root = CategoryService.create_category(data)
+
+                # set random image name
+                root.image = random_image_name()
+                root.save(update_fields=["image"])
+
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f"Created root: {root.id} -> {root.name} (path={root.path})"
+                        f"Created root: {root.id} -> {root.name} (image={root.image})"
                     )
                 )
             else:
@@ -171,13 +184,18 @@ class Command(BaseCommand):
                         parent_id=parent.id,
                     )
                     child = CategoryService.create_category(data)
+
+                    # set random image name
+                    child.image = random_image_name()
+                    child.save(update_fields=["image"])
+
                     total_categories += 1
                     next_level_parents.append(child)
 
                     self.stdout.write(
                         self.style.SUCCESS(
                             f"Created category: {child.id} -> {child.name} "
-                            f"(parent={parent.id}, depth={depth})"
+                            f"(parent={parent.id}, depth={depth}, image={child.image})"
                         )
                     )
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, List
+from typing import Any, Optional, List
 from ninja import Schema
 
 
@@ -22,8 +22,8 @@ class CategoryOut(Schema):
     id: int
     name: str
     description: str
+    image: Optional[str]
     parent_id: Optional[int]
-    path: str
 
 class CategoryTreeNode(Schema):
     id: int

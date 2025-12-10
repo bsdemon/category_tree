@@ -209,7 +209,6 @@ class Command(BaseCommand):
             print(f"\nIsland #{idx} (size={len(component)}):")
 
             if len(component) <= MAX_SHOW:
-                # малки island-и → показваме всичко
                 for cid in component:
                     cat = cat_by_id[cid]
                     print(f"  - {cat.id}: {cat.name}")
@@ -243,35 +242,21 @@ class Command(BaseCommand):
         if len(longest_path_ids) > 1:
             for a, b in zip(longest_path_ids, longest_path_ids[1:]):
                 path_edges.add((a, b))
-                path_edges.add((b, a))  # неориентиран
+                path_edges.add((b, a))
 
-        # Assign a "color index" per island
-        # node_to_island: dict[int, int] = {}
-        # for idx, comp in enumerate(islands):
-        #     for cid in comp:
-        #         node_to_island[cid] = idx
+
 
         with open(filename, "w", encoding="utf-8") as f:
             f.write('graph RabbitGraph {\n')
             f.write('  overlap=false;\n')
             f.write('  splines=true;\n')
 
-            # Define nodes
-            # for cid, cat in cat_by_id.items():
-            #     # island_idx = node_to_island.get(cid, 0)
-            #     # Просто colorN, реално можеш да ги мапнеш после към конкретни цветове
-            #     f.write(
-            #         f'  {cid} [label="{cid}: {cat.name}", '
-            #         f'color="black", '
-            #         f'cluster="{island_idx}"];\n'
-            #     )
-
             # Define edges
             written_edges: Set[tuple[int, int]] = set()
             for c1, neighbors in graph.items():
                 for c2 in neighbors:
                     if (c2, c1) in written_edges:
-                        continue  # избегни дублиране на неориентирани ребра
+                        continue
 
                     if (c1, c2) in path_edges:
                         # Edge is part of longest rabbit hole
