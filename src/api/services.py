@@ -91,7 +91,7 @@ class CategoryService:
         node = category
         while node.parent_id is not None:
             depth += 1
-            node = node.parent
+            node = node.parent # type: ignore[assignment]
         return depth
 
     @staticmethod
@@ -250,12 +250,12 @@ class CategoryService:
     def remove_similarity(category_id: int, other_id: int) -> bool:
         c1 = Category.objects.select_for_update().get(id=category_id)
         c2 = Category.objects.select_for_update().get(id=other_id)
-        
-        deleted = False
 
         if c1.id < c2.id:
-            deleted,_ = CategorySimilarity.objects.filter(category1=c1, category2=c2).delete()
+            qs = CategorySimilarity.objects.filter(category1=c1, category2=c2)
         else:
-            deleted,_ = CategorySimilarity.objects.filter(category1=c2, category2=c1).delete()
+            qs = CategorySimilarity.objects.filter(category1=c2, category2=c1)
 
-        return deleted > 0
+        existed = qs.exists()
+        qs.delete()
+        return existed
