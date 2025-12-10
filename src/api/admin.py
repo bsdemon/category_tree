@@ -11,7 +11,6 @@ class CategoryAdmin(admin.ModelAdmin):
     raw_id_fields = ("parent",)
     ordering = ("path",)
 
-    # Optional: readonly path if не искаш да се пипа ръчно в админ
     readonly_fields = ("path",)
 
 
