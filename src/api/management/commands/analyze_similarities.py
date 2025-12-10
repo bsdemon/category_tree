@@ -23,7 +23,6 @@ class Command(BaseCommand):
 
         self._print_longest_rabbit_hole(longest_path_ids, cat_by_id)
         self._print_rabbit_islands(rabbit_islands, cat_by_id)
-        self._export_graphviz(graph, cat_by_id, rabbit_islands, longest_path_ids)
 
     def _build_graph(self, cat_by_id: Dict[int, Category]) -> Dict[int, Set[int]]:
         """Build undirected graph from CategorySimilarity."""
@@ -229,43 +228,4 @@ class Command(BaseCommand):
                     cat = cat_by_id[cid]
                     print(f"    - {cat.id}: {cat.name}")
 
-    def _export_graphviz(
-        self,
-        graph: Dict[int, Set[int]],
-        cat_by_id: Dict[int, Category],
-        islands: List[List[int]],
-        longest_path_ids: List[int],
-        filename: str = "rabbit_graph.dot",
-    ) -> None:
-        # Set for quick check if an edge is in the longest path
-        path_edges: Set[tuple[int, int]] = set()
-        if len(longest_path_ids) > 1:
-            for a, b in zip(longest_path_ids, longest_path_ids[1:]):
-                path_edges.add((a, b))
-                path_edges.add((b, a))
 
-
-
-        with open(filename, "w", encoding="utf-8") as f:
-            f.write('graph RabbitGraph {\n')
-            f.write('  overlap=false;\n')
-            f.write('  splines=true;\n')
-
-            # Define edges
-            written_edges: Set[tuple[int, int]] = set()
-            for c1, neighbors in graph.items():
-                for c2 in neighbors:
-                    if (c2, c1) in written_edges:
-                        continue
-
-                    if (c1, c2) in path_edges:
-                        # Edge is part of longest rabbit hole
-                        f.write(f'  {c1} -- {c2} [penwidth=3];\n')
-                    else:
-                        f.write(f'  {c1} -- {c2};\n')
-
-                    written_edges.add((c1, c2))
-
-            f.write('}\n')
-
-        print(f"\nGraphviz file written to {filename}")
