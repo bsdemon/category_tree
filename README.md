@@ -1,5 +1,5 @@
 # category_tree
-Category tree 
+Category tree with path
 
 1. Clone project
 ```
