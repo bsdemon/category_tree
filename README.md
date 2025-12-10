@@ -32,3 +32,8 @@ uv run src/manage.py generate_similarities
 ```
 uv run src/manage.py analyze_similarities
 ```
+
+7. OPEN API docs
+```
+http://localhost:8000/api/docs
+```
