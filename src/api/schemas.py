@@ -38,7 +38,8 @@ class MoveCategoryIn(Schema):
 
 
 class SimilarCategoryIn(Schema):
-    other_id: int
+    lead_id: int
+    follower_id: int
 
 
 class MessageOut(Schema):

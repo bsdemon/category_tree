@@ -56,6 +56,18 @@ def list_categories(request):
     return [_category_to_schema(c) for c in categories]
 
 
+@router.post("/similar", response={201: MessageOut, 400: MessageOut, 404: MessageOut},)
+def add_similarity(request, data: SimilarCategoryIn):
+    try:
+        CategoryService.add_similarity(data.lead_id, data.follower_id)
+    except Category.DoesNotExist:
+        return 404, MessageOut(detail="Category not found")
+    except ValueError as exc:
+        return 400, MessageOut(detail=str(exc))
+
+    return 201, MessageOut(detail="Similarity created")
+
+
 @router.get(
     "/by-parent/{parent_id}",
     response={200: List[CategoryOut], 404: MessageOut},
@@ -103,10 +115,7 @@ def get_category(request, category_id: int):
     return _category_to_schema(category)
 
 
-@router.patch(
-    "/{category_id}",
-    response={200: CategoryOut, 404: MessageOut},
-)
+@router.patch("/{category_id}", response={200: CategoryOut, 404: MessageOut},)
 def update_category(request, category_id: int, data: CategoryUpdate):
     try:
         updated = CategoryService.update_category(
@@ -123,22 +132,16 @@ def update_category(request, category_id: int, data: CategoryUpdate):
     return 200, _category_to_schema(updated)
 
 
-@router.delete(
-    "/{category_id}",
-    response={204: None, 404: MessageOut},
-)
+@router.delete("/{category_id}", response={200: None, 404: MessageOut},)
 def delete_category(request, category_id: int):
     try:
         CategoryService.delete_category_and_subtree(category_id)
     except Category.DoesNotExist:
         return 404, MessageOut(detail="Category not found")
-    return 204, None
+    return 200, None
 
 
-@router.post(
-    "/{category_id}/move",
-    response={200: CategoryOut, 400: MessageOut, 404: MessageOut},
-)
+@router.post("/{category_id}/move", response={200: CategoryOut, 400: MessageOut, 404: MessageOut},)
 def move_category(request, category_id: int, data: MoveCategoryIn):
     try:
         moved = CategoryService.move_category(category_id, data.new_parent_id)
@@ -159,12 +162,7 @@ def get_subtree(request, category_id: int):
     return subtree
 
 
-# ---------- Similarity endpoints ----------
-
-@router.get(
-    "/{category_id}/similar",
-    response={200: List[CategoryOut], 404: MessageOut},
-)
+@router.get("/{category_id}/similar", response={200: List[CategoryOut], 404: MessageOut},)
 def list_similar_categories(request, category_id: int):
     try:
         similar = CategoryService.list_similar_categories(category_id)
@@ -174,32 +172,17 @@ def list_similar_categories(request, category_id: int):
     return 200, [_category_to_schema(c) for c in similar]
 
 
-@router.post(
-    "/{category_id}/similar",
-    response={201: MessageOut, 400: MessageOut, 404: MessageOut},
-)
-def add_similarity(request, category_id: int, data: SimilarCategoryIn):
-    try:
-        CategoryService.add_similarity(category_id, data.other_id)
-    except Category.DoesNotExist:
-        return 404, MessageOut(detail="Category not found")
-    except ValueError as exc:
-        return 400, MessageOut(detail=str(exc))
-
-    return 201, MessageOut(detail="Similarity created")
-
-
-@router.delete(
-    "/{category_id}/similar/{other_id}",
-    response={204: None, 404: MessageOut},
-)
+@router.delete("/{category_id}/similar/{other_id}", response={200: None, 404: MessageOut},)
 def remove_similarity(request, category_id: int, other_id: int):
+
     try:
-        CategoryService.remove_similarity(category_id, other_id)
+        success = CategoryService.remove_similarity(category_id, other_id)
+        if not success:
+            return 404, MessageOut(detail="Similarity not found")
     except Category.DoesNotExist:
         return 404, MessageOut(detail="Category not found")
 
-    return 204, None
+    return 200, None
 
 
 api.add_router("/categories", router)

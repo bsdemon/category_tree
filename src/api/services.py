@@ -224,11 +224,12 @@ class CategoryService:
         category = Category.objects.select_for_update().get(id=category_id)
         category.delete()
 
-
     @staticmethod
     def list_similar_categories(category_id: int) -> List[Category]:
         category = Category.objects.get(id=category_id)
-        return list(category.similar_categories.all())
+        forward = category.similar_categories.all()  # from lead side
+        backward = category.similar_to.all()         # from follower side
+        return list((forward | backward).distinct())
 
     @staticmethod
     @transaction.atomic
@@ -246,11 +247,15 @@ class CategoryService:
 
     @staticmethod
     @transaction.atomic
-    def remove_similarity(category_id: int, other_id: int) -> None:
+    def remove_similarity(category_id: int, other_id: int) -> bool:
         c1 = Category.objects.select_for_update().get(id=category_id)
         c2 = Category.objects.select_for_update().get(id=other_id)
+        
+        deleted = False
 
         if c1.id < c2.id:
-            CategorySimilarity.objects.filter(category1=c1, category2=c2).delete()
+            deleted,_ = CategorySimilarity.objects.filter(category1=c1, category2=c2).delete()
         else:
-            CategorySimilarity.objects.filter(category1=c2, category2=c1).delete()
+            deleted,_ = CategorySimilarity.objects.filter(category1=c2, category2=c1).delete()
+
+        return deleted > 0
