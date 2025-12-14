@@ -30,12 +30,12 @@ class Command(BaseCommand):
 
         similarities: list[tuple[int, int]] = list(
             CategorySimilarity.objects.values_list("category1_id", "category2_id")
-        )
+        ) # get all similaritiess
 
-        for c1_id, c2_id in similarities:
+        for c1_id, c2_id in similarities: # check if category still exists
             if c1_id in graph and c2_id in graph:
-                graph[c1_id].add(c2_id)
-                graph[c2_id].add(c1_id)
+                graph[c1_id].add(c2_id) # add similarities to graph
+                graph[c2_id].add(c1_id) # add similarities to graph
 
         return graph
 
@@ -51,9 +51,9 @@ class Command(BaseCommand):
 
             queue: deque[int] = deque([start])
             visited.add(start)
-            component: List[int] = []
+            component: List[int] = [] # here we create island of connected nodes
 
-            while queue:
+            while queue: # BFS to find islands
                 node = queue.popleft()
                 component.append(node)
                 for neighbor in graph[node]:
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                         visited.add(neighbor)
                         queue.append(neighbor)
 
-            islands.append(component)
+            islands.append(component) # here we add island to other islands
 
         return islands
 
@@ -75,6 +75,7 @@ class Command(BaseCommand):
         - max distance from start
         - one of the longest shortest paths (as list of node ids)
         """
+        # BFS to find shortes path
         queue: deque[int] = deque([start])
         dist: Dict[int, int] = {start: 0}
         parent: Dict[int, Optional[int]] = {start: None}
@@ -94,7 +95,7 @@ class Command(BaseCommand):
                         max_dist = dist[neighbor]
                         farthest_node = neighbor
 
-        path: List[int] = []
+        path: List[int] = [] # reconstruct path
         cur: Optional[int] = farthest_node
         while cur is not None:
             path.append(cur)
@@ -227,5 +228,3 @@ class Command(BaseCommand):
                 for cid in last:
                     cat = cat_by_id[cid]
                     print(f"    - {cat.id}: {cat.name}")
-
-
