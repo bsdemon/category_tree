@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import Any, Optional, List
+from typing import Optional
 from ninja import Schema
+from pydantic import Field
 
 
 class CategoryBase(Schema):
@@ -30,7 +31,7 @@ class CategoryTreeNode(Schema):
     name: str
     description: str
     parent_id: Optional[int]
-    children: List["CategoryTreeNode"] = [] 
+    children: list[CategoryTreeNode] = Field(default_factory=list)
 
 
 class MoveCategoryIn(Schema):
